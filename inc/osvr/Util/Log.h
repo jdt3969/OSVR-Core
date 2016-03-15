@@ -49,13 +49,13 @@ LoggerPtr make_logger(const std::string& logger_name);
 } // end namespace util
 } // end namespace osvr
 
-#ifdef OSVR_TRACE_ON
+#ifdef BUILD_DEV_VERBOSE
 #define OSVR_TRACE(...) ::osvr::util::log::make_logger("OSVR")->trace() << __FILE__ << ":" << __LINE__ << ": " << __VA_ARGS__;
 #else
 #define OSVR_TRACE(...)
 #endif
 
-#ifdef OSVR_DEBUG_ON
+#ifdef BUILD_DEV_VERBOSE
 #define OSVR_DEBUG(...) ::osvr::util::log::make_logger("OSVR")->debug() << __FILE__ << ":" << __LINE__ << ": " << __VA_ARGS__;
 #else
 #define OSVR_DEBUG(...)
