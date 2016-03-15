@@ -55,6 +55,11 @@ namespace osvr {
 namespace util {
 namespace log {
 
+/**
+ * @brief A sink which sends its output to std::cout. This sink is a drop-in
+ * replacement for spdlog::stdout_sink and differs only in that this sink isn't
+ * a singleton.
+ */
 template <typename Mutex>
 class stdout_sink : public ::spdlog::sinks::ostream_sink<Mutex> {
 public:
@@ -68,6 +73,11 @@ typedef stdout_sink<::spdlog::details::null_mutex> stdout_sink_st;
 typedef stdout_sink<std::mutex> stdout_sink_mt;
 
 
+/**
+ * @brief A sink which sends its output to std::cerr. This sink is a drop-in
+ * replacement for spdlog::stderr_sink and differs only in that this sink isn't
+ * a singleton.
+ */
 template <typename Mutex>
 class stderr_sink : public ::spdlog::sinks::ostream_sink<Mutex> {
 public:
