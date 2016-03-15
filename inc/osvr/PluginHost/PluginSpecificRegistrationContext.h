@@ -36,6 +36,7 @@
 #include <osvr/Util/AnyMap_fwd.h>
 #include <osvr/Util/GenericDeleter.h>
 #include <osvr/Util/LogLevel.h>
+#include <osvr/Util/Logger.h>
 
 // Library/third-party includes
 #include <boost/noncopyable.hpp>
@@ -144,6 +145,7 @@ namespace pluginhost {
 
       private:
         std::string const m_name;
+        osvr::util::log::LoggerPtr m_logger;
     };
 
 } // namespace pluginhost

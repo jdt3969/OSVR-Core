@@ -58,14 +58,14 @@ namespace pluginhost {
     const std::string &PluginSpecificRegistrationContext::getName() const {
         return m_name;
     }
+
     PluginSpecificRegistrationContext::PluginSpecificRegistrationContext(
         std::string const &name)
-        : m_name(name) {}
+        : m_name(name), m_logger(util::log::make_logger(name)) {}
 
     void PluginSpecificRegistrationContext::log(util::log::LogLevel severity,
                                                 const char *message) {
-        auto logger = util::log::make_logger(m_name);
-        logger->log(severity, message);
+        m_logger->log(severity, message);
     }
 
 } // namespace pluginhost
