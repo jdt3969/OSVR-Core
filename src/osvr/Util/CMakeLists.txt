@@ -6,6 +6,15 @@ if(BUILD_DEV_VERBOSE)
 endif()
 configure_file(Verbosity.h.in "${CMAKE_CURRENT_BINARY_DIR}/Verbosity.h")
 
+###
+# The logger singleton may be disabled if necessary.
+# It may result in degraded performance or disabled logging.
+###
+option(BUILD_LOG_SINGLETON "Enable or disable the logging singleton." TRUE)
+if(BUILD_LOG_SINGLETON)
+    set(OSVR_UTIL_LOG_SINGLETON TRUE)
+endif()
+configure_file(Log.cpp.in "${CMAKE_CURRENT_BINARY_DIR}/Log.cpp")
 
 ###
 # Platform Config Header (and other external and internal configured headers)
@@ -76,7 +85,7 @@ set(API
     "${HEADER_LOCATION}/Logger.h"
     "${HEADER_LOCATION}/Log.h"
     "${HEADER_LOCATION}/LogLevel.h"
-	"${HEADER_LOCATION}/LogLevelC.h"
+    "${HEADER_LOCATION}/LogLevelC.h"
     "${HEADER_LOCATION}/LogSinks.h"
     "${HEADER_LOCATION}/MatrixConventionsC.h"
     "${HEADER_LOCATION}/MatrixConventions.h"
@@ -135,7 +144,7 @@ set(SOURCE
     GuardInterface.cpp
     TimeValueC.cpp
     LineLogger.cpp
-    Log.cpp
+    Log.cpp.in
     Logger.cpp
     MatrixConventionsC.cpp
     MessageKeys.cpp
@@ -144,6 +153,7 @@ set(SOURCE
     ClientCallbackTypesC.h.in
     ClientCallbackTypesCSnippet.h.in
     WideToUTF8.h.in
+    "${CMAKE_CURRENT_BINARY_DIR}/Log.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/ClientCallbackTypesC.h"
     "${CMAKE_CURRENT_BINARY_DIR}/StdAlignWrapper.h"
     "${CMAKE_CURRENT_BINARY_DIR}/Verbosity.h"
