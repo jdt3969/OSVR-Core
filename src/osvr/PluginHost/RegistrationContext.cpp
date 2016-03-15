@@ -58,8 +58,8 @@ namespace pluginhost {
 
         const std::vector<std::string> pluginPaths;
     };
-    RegistrationContext::RegistrationContext() : m_impl(new Impl), m_log(util::log::make_logger("PluginHost")) {
-        m_log->setLogLevel(util::log::LogLevel::trace);
+    RegistrationContext::RegistrationContext() : m_impl(new Impl), m_logger(util::log::make_logger("PluginHost")) {
+        m_logger->setLogLevel(util::log::LogLevel::trace);
     }
 
     RegistrationContext::~RegistrationContext() {
@@ -139,24 +139,24 @@ namespace pluginhost {
 
         // Load all of the non-.manualload plugins
         for (const auto &plugin : pluginPathNames) {
-            m_log->debug() << "Examining plugin '" << plugin << "'...";
+            m_logger->debug() << "Examining plugin '" << plugin << "'...";
             const auto pluginBaseName =
                 fs::path(plugin).filename().stem().generic_string();
             if (boost::iends_with(pluginBaseName, OSVR_PLUGIN_IGNORE_SUFFIX)) {
-                m_log->debug()
+                m_logger->debug()
                     << "Ignoring manual-load plugin: " << pluginBaseName;
                 continue;
             }
 
             try {
                 loadPlugin(pluginBaseName);
-                m_log->debug()
+                m_logger->debug()
                     << "Successfully loaded plugin: " << pluginBaseName;
             } catch (const std::exception &e) {
-                m_log->debug() << "Failed to load plugin " << pluginBaseName
+                m_logger->debug() << "Failed to load plugin " << pluginBaseName
                                << ": " << e.what();
             } catch (...) {
-                m_log->debug() << "Failed to load plugin " << pluginBaseName
+                m_logger->debug() << "Failed to load plugin " << pluginBaseName
                                << ": Unknown error.";
             }
         }
