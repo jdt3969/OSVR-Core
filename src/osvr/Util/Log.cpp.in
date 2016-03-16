@@ -137,7 +137,7 @@ std::string getLoggingDirectory(bool make_dir)
     }
     log_dir /= "Library" / fs::path("Logs") / "OSVR";
 #elif defined(OSVR_WINDOWS)
-    auto local_app_dir = osvr::common::getEnvironmentVariable("LocalAppData");
+    auto local_app_dir = getEnvironmentVariable("LocalAppData");
     if (local_app_dir) {
         log_dir = *local_app_dir;
     } else {
