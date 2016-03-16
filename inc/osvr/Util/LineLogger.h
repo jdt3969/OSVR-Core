@@ -39,7 +39,7 @@
 // Forward declaration
 namespace spdlog {
 namespace details {
-class log_msg;
+struct log_msg;
 class line_logger;
 } // end namespace details
 } // end namespace spdlog
