@@ -26,10 +26,13 @@
 // Internal Includes
 #include <osvr/Util/Log.h>
 #include <osvr/Util/LogSinks.h>
+#include <osvr/Util/PlatformConfig.h>
+#include <osvr/Util/GetEnvironmentVariable.h>
 
 // Library/third-party includes
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/ansicolor_sink.h>
+#include <boost/filesystem.hpp>
 
 // Standard includes
 #include <memory>           // for std::make_shared, std::shared_ptr
@@ -41,10 +44,12 @@ namespace osvr {
 namespace util {
 namespace log {
 
+// TODO if OSVR_ANDROID, use android sink
+
 #ifdef OSVR_UTIL_LOG_SINGLETON
 LoggerPtr make_logger(const std::string& logger_name)
 {
-#warning "OSVR_UTIL_LOG_SINGLETON enabled."
+    namespace fs = boost::filesystem;
     // If logger already exists, return a copy of it
     auto spd_logger = spdlog::get(logger_name);
     if (spd_logger)
@@ -58,19 +63,32 @@ LoggerPtr make_logger(const std::string& logger_name)
     auto color_sink = std::make_shared<spdlog::sinks::ansicolor_sink>(stdout_sink); // taste the rainbow!
 
     // File sink - rotates daily
-    //size_t q_size = 1048576; // queue size must be power of 2
-    //spdlog::set_async_mode(q_size);
-    //auto daily_file_sink = spdlog::sinks::daily_file_sink_mt(logger_name, "osvr", "log", 0, 0, false);
+    size_t q_size = 1048576; // queue size must be power of 2
+    spdlog::set_async_mode(q_size);
+    auto base_name = fs::path(getLoggingDirectory(true));
+    if (!base_name.empty()) {
+        base_name /= "osvr";
+        auto daily_file_sink = std::make_shared<spdlog::sinks::daily_file_sink_mt>(base_name.c_str(), "log", 0, 0, false);
 
-    //spd_logger = spdlog::details::registry::instance().create(logger_name, { color_sink, daily_file_sink });
-    spd_logger = spdlog::details::registry::instance().create(logger_name, color_sink);
+        std::vector<spdlog::sink_ptr> sinks;
+        sinks.push_back(color_sink);
+        sinks.push_back(daily_file_sink);
+
+        spd_logger = spdlog::details::registry::instance().create(logger_name, begin(sinks), end(sinks));
+    } else {
+        spd_logger = spdlog::details::registry::instance().create(logger_name, color_sink);
+    }
+
     spd_logger->set_pattern("%b %d %T.%e %l [%n]: %v");
     spd_logger->set_level(spdlog::level::trace);
+
+    if (base_name.empty()) {
+        spd_logger->warn("Failed to locate or create logging directory. Messages will be logged to the console only.");
+    }
 
     return std::make_shared<Logger>(spd_logger);
 }
 #else
-#warning "OSVR_UTIL_LOG_SINGLETON disabled."
 /*
  * This implementation avoids using a singleton.  The downside is that each call
  * to make_logger() will generate a new logger instead of reusing an existing
@@ -88,6 +106,58 @@ LoggerPtr make_logger(const std::string& logger_name)
     return std::make_shared<Logger>(spd_logger);
 }
 #endif
+
+std::string getLoggingDirectory(bool make_dir)
+{
+    namespace fs = boost::filesystem;
+    using osvr::util::getEnvironmentVariable;
+    fs::path log_dir;
+
+#if defined(OSVR_LINUX)
+    // There's currently no great location for storing log files in the XDG
+    // system. (See the STATE proposal by Debian
+    // <https://wiki.debian.org/XDGBaseDirectorySpecification#Proposal:_STATE_directory>.)
+    // So for now, we'll store our log files in the $XDG_CACHE_HOME directory.
+    //
+    // $XDG_CACHE_HOME defines the base directory relative to which user
+    // specific non-essential data files should be stored. If $XDG_CACHE_HOME is
+    // either not set or empty, a default equal to $HOME/.cache should be used.
+    auto xdg_cache_dir = getEnvironmentVariable("XDG_CACHE_HOME");
+    if (xdg_cache_dir) {
+        log_dir = *xdg_cache_dir;
+    } else {
+        auto home_dir = getEnvironmentVariable("HOME");
+        log_dir = fs::path(*home_dir) / ".cache";
+    }
+    log_dir /= fs::path("osvr") / "logs";
+#elif defined(OSVR_MACOSX)
+    auto home_dir = getEnvironmentVariable("HOME");
+    if (home_dir) {
+        log_dir = *home_dir;
+    }
+    log_dir /= "Library" / fs::path("Logs") / "OSVR";
+#elif defined(OSVR_WINDOWS)
+    auto local_app_dir = osvr::common::getEnvironmentVariable("LocalAppData");
+    if (local_app_dir) {
+        log_dir = *local_app_dir;
+    } else {
+        log_dir = "c:/";
+    }
+    log_dir /= fs::path("OSVR") / "Logs";
+#endif
+
+    if (fs::is_directory(log_dir))
+        return log_dir.native();
+
+    if (make_dir) {
+        auto success = fs::create_directories(log_dir);
+        if (!success) {
+            log_dir.clear();
+        }
+    }
+
+    return log_dir.native();
+}
 
 } // end namespace log
 } // end namespace util

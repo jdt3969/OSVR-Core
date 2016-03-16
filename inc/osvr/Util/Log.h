@@ -45,6 +45,8 @@ namespace log {
 
 LoggerPtr make_logger(const std::string& logger_name);
 
+std::string getLoggingDirectory(bool make_dir = false);
+
 } // end namespace log
 } // end namespace util
 } // end namespace osvr
