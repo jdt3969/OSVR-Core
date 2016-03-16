@@ -29,6 +29,7 @@
 
 // Library/third-party includes
 #include <spdlog/spdlog.h>
+#include <spdlog/sinks/ansicolor_sink.h>
 
 // Standard includes
 #include <memory>           // for std::make_shared, std::shared_ptr
@@ -44,16 +45,28 @@ namespace log {
 LoggerPtr make_logger(const std::string& logger_name)
 {
 #warning "OSVR_UTIL_LOG_SINGLETON enabled."
-    // FIXME use custom OSVR logger that splits output to STDOUT and STDERR and
-    // log files based on severity levels, etc.
-    //auto sink = std::make_shared<stdout_sink_mt>();
-    //auto spd_logger = std::make_shared<::spdlog::logger>(logger_name, sink);
+    // If logger already exists, return a copy of it
     auto spd_logger = spdlog::get(logger_name);
-    if (!spd_logger) {
-        spd_logger = spdlog::stdout_logger_mt(logger_name);
-    }
+    if (spd_logger)
+        return std::make_shared<Logger>(spd_logger);
+
+    // Bummer, it didn't exist. We'll create one from scratch.
+
+    // Console sink
+    auto console_out = spdlog::sinks::stderr_sink_st::instance();
+    auto stdout_sink = std::make_shared<stdout_sink_mt>();
+    auto color_sink = std::make_shared<spdlog::sinks::ansicolor_sink>(stdout_sink); // taste the rainbow!
+
+    // File sink - rotates daily
+    //size_t q_size = 1048576; // queue size must be power of 2
+    //spdlog::set_async_mode(q_size);
+    //auto daily_file_sink = spdlog::sinks::daily_file_sink_mt(logger_name, "osvr", "log", 0, 0, false);
+
+    //spd_logger = spdlog::details::registry::instance().create(logger_name, { color_sink, daily_file_sink });
+    spd_logger = spdlog::details::registry::instance().create(logger_name, color_sink);
     spd_logger->set_pattern("%b %d %T.%e %l [%n]: %v");
     spd_logger->set_level(spdlog::level::trace);
+
     return std::make_shared<Logger>(spd_logger);
 }
 #else
