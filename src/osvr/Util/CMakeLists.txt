@@ -75,6 +75,7 @@ set(API
     "${HEADER_LOCATION}/Flag.h"
     "${HEADER_LOCATION}/GenericCaller.h"
     "${HEADER_LOCATION}/GenericDeleter.h"
+    "${HEADER_LOCATION}/GetEnvironmentVariable.h"
     "${HEADER_LOCATION}/GuardInterface.h"
     "${HEADER_LOCATION}/GuardInterfaceDummy.h"
     "${HEADER_LOCATION}/GuardPtr.h"
@@ -141,6 +142,7 @@ set(SOURCE
     AlignedMemoryC.cpp
     AnyMap.cpp
     Deletable.cpp
+    GetEnvironmentVariable.cpp
     GuardInterface.cpp
     TimeValueC.cpp
     LineLogger.cpp
@@ -184,6 +186,7 @@ target_link_libraries(${LIBNAME_FULL}
     vendored-vrpn
     eigen-headers
     spdlog
+    boost_filesystem
     osvrTypePack)
 
 if(NOT OSVR_HAVE_STDALIGN)

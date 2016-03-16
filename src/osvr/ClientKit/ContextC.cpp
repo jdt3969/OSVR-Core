@@ -26,8 +26,8 @@
 #include <osvr/ClientKit/ContextC.h>
 #include <osvr/Common/ClientContext.h>
 #include <osvr/Client/CreateContext.h>
-#include <osvr/Common/GetEnvironmentVariable.h>
 #include <osvr/Common/Tracing.h>
+#include <osvr/Util/GetEnvironmentVariable.h>
 #include <osvr/Util/Verbosity.h>
 #include <osvr/Util/Log.h>
 
@@ -41,7 +41,7 @@ static const char HOST_ENV_VAR[] = "OSVR_HOST";
 
 OSVR_ClientContext osvrClientInit(const char applicationIdentifier[],
                                   uint32_t /*flags*/) {
-    auto host = osvr::common::getEnvironmentVariable(HOST_ENV_VAR);
+    auto host = osvr::util::getEnvironmentVariable(HOST_ENV_VAR);
     if (host.is_initialized()) {
         OSVR_DEV_VERBOSE("Connecting to non-default host " << *host);
         return ::osvr::client::createContext(applicationIdentifier,

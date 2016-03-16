@@ -62,7 +62,6 @@ set(API
     "${HEADER_LOCATION}/Endianness.h"
     "${HEADER_LOCATION}/EyeTrackerComponent.h"
     "${HEADER_LOCATION}/GeneralizedTransform.h"
-    "${HEADER_LOCATION}/GetEnvironmentVariable.h"
     "${HEADER_LOCATION}/ImagingComponent.h"
     "${CMAKE_CURRENT_BINARY_DIR}/ImagingComponentConfig.h"
     "${HEADER_LOCATION}/IntegerByteSwap.h"
@@ -141,7 +140,6 @@ set(SOURCE
     DirectionComponent.cpp
     EyeTrackerComponent.cpp
     GeneralizedTransform.cpp
-    GetEnvironmentVariable.cpp
     GetJSONStringFromTree.h
     ImagingComponent.cpp
     IPCRingBuffer.cpp
