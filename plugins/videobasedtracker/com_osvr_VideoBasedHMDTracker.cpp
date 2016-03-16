@@ -32,6 +32,7 @@
 #include <osvr/PluginKit/TrackerInterfaceC.h>
 #include <osvr/PluginKit/AnalogInterfaceC.h>
 #include "HDKData.h"
+#include "SetupSensors.h"
 
 #include "ConfigurationParser.h"
 
@@ -238,8 +239,32 @@ class HardwareDetection {
         }
         auto src = m_cameraFactory();
         if (!src || !src->ok()) {
+            if (!m_reportedNoCamera) {
+                m_reportedNoCamera = true;
+                std::cout
+                    << "\nVideo-based tracker: Could not open the tracking "
+                       "camera. If you intend to use it, make sure that "
+                       "all cables to it are plugged in firmly.\n";
+
+#ifdef _WIN32
+                /// @todo this is a strange quirk of the video capture backend,
+                /// as well as others like it, including Microsoft's own AMCap
+                /// You get a "can't start the filter graph" if you have, e.g.,
+                /// Skype or a webcam-using page in Chrome accessing any camera
+                /// on your system when you try to start the tracker. Once you
+                /// get it started, then you can use those things just fine.
+                std::cout << "Video-based tracker: Windows users may need to "
+                             "exit other camera-using applications or "
+                             "activities until after the tracking camera is "
+                             "turned on by this plugin. (This is the most "
+                             "common cause of messages regarding the 'filter "
+                             "graph')\n";
+#endif
+                std::cout << std::endl;
+            }
             return OSVR_RETURN_FAILURE;
         }
+        std::cout << "Video-based tracker: Camera turned on!" << std::endl;
         m_found = true;
 
         /// Create our device object, passing the context and moving the camera.
@@ -255,6 +280,7 @@ class HardwareDetection {
     /// @brief Have we found our device yet? (this limits the plugin to one
     /// instance, so that only one tracker will use this camera.)
     bool m_found = false;
+    bool m_reportedNoCamera = false;
 
     CameraFactoryType m_cameraFactory;
     SensorSetupType m_sensorSetup;
@@ -262,53 +288,6 @@ class HardwareDetection {
     int m_cameraID; //< Which OpenCV camera should we open?
     osvr::vbtracker::ConfigParams const m_params;
 };
-
-/// @name Helper functions for loading calibration files
-/// @{
-inline cv::Point3f parsePoint(Json::Value const &jsonArray) {
-    return cv::Point3f(jsonArray[0].asFloat(), jsonArray[1].asFloat(),
-                       jsonArray[2].asFloat());
-}
-
-inline std::vector<cv::Point3f>
-parseArrayOfPoints(Json::Value const &jsonArray) {
-    /// in case of error, we just return an empty array.
-    std::vector<cv::Point3f> ret;
-    if (!jsonArray.isArray()) {
-        return ret;
-    }
-    for (auto &entry : jsonArray) {
-
-        if (!entry.isArray() || entry.size() != 3) {
-            ret.clear();
-            return ret;
-        }
-        ret.emplace_back(parsePoint(entry));
-    }
-    return ret;
-}
-
-inline std::vector<cv::Point3f>
-tryLoadingArrayOfPointsFromFile(std::string const &filename) {
-    std::vector<cv::Point3f> ret;
-    if (filename.empty()) {
-        return ret;
-    }
-    Json::Value root;
-    {
-        std::ifstream calibfile(filename);
-        if (!calibfile.good()) {
-            return ret;
-        }
-        Json::Reader reader;
-        if (!reader.parse(calibfile, root)) {
-            return ret;
-        }
-    }
-    ret = parseArrayOfPoints(root);
-    return ret;
-}
-/// @}
 
 class ConfiguredDeviceConstructor {
   public:
@@ -390,113 +369,21 @@ class ConfiguredDeviceConstructor {
         /// Function to execute after the device is created, to add the sensors.
         std::function<void(VideoBasedHMDTracker & newTracker)>
             setupHDKParamsAndSensors;
-        /// Loading a calibration file means our beacon locations are better
-        /// known than we might otherwise expect.
-        auto BEACON_AUTOCALIB_ERROR_SCALE_IF_CALIBRATED = 0.1;
+
         if (config.includeRearPanel) {
-            // distance between front and back panel target origins, in mm.
-            auto distanceBetweenPanels = config.headCircumference / M_PI * 10. +
-                                         config.headToFrontBeaconOriginDistance;
-            setupHDKParamsAndSensors =
-                [config, distanceBetweenPanels, frontPanelFixedBeacon,
-                 BEACON_AUTOCALIB_ERROR_SCALE_IF_CALIBRATED](
-                    VideoBasedHMDTracker &newTracker) {
-                    osvr::vbtracker::Point3Vector locations =
-                        osvr::vbtracker::OsvrHdkLedLocations_SENSOR0;
-                    osvr::vbtracker::Vec3Vector directions =
-                        osvr::vbtracker::OsvrHdkLedDirections_SENSOR0;
-                    std::vector<double> variances =
-                        osvr::vbtracker::OsvrHdkLedVariances_SENSOR0;
-
-                    // For the back panel beacons: have to rotate 180 degrees
-                    // about Y, which is the same as flipping sign on X and Z
-                    // then we must translate along Z by head diameter +
-                    // distance from head to front beacon origins
-                    for (auto &pt :
-                         osvr::vbtracker::OsvrHdkLedLocations_SENSOR1) {
-                        locations.emplace_back(-pt.x, pt.y,
-                                               -pt.z - distanceBetweenPanels);
-                        variances.push_back(config.backPanelMeasurementError);
-                    }
-                    // Similarly, rotate the directions.
-                    for (auto &vec :
-                         osvr::vbtracker::OsvrHdkLedDirections_SENSOR1) {
-                        directions.emplace_back(-vec[0], vec[1], -vec[2]);
-                    }
-                    double autocalibScale = 1;
-                    auto calibLocations =
-                        tryLoadingArrayOfPointsFromFile(config.calibrationFile);
-                    if (calibLocations.size() == locations.size()) {
-                        std::cout << "Video-based tracker: Successfully loaded "
-                                     "beacon calibration file "
-                                  << config.calibrationFile << std::endl;
-                        locations = calibLocations;
-                        autocalibScale =
-                            BEACON_AUTOCALIB_ERROR_SCALE_IF_CALIBRATED;
-                    } else if (!config.calibrationFile.empty()) {
-                        std::cout
-                            << "Video-based tracker: NOTE: Beacon calibration "
-                               "filename "
-                            << config.calibrationFile
-                            << " was specified, but not found or could not "
-                               "be loaded."
-                            << std::endl;
-                    }
-
-                    auto camParams = osvr::vbtracker::getHDKCameraParameters();
-                    newTracker.vbtracker().addSensor(
-                        osvr::vbtracker::createHDKUnifiedLedIdentifier(),
-                        camParams, locations, directions, variances,
-                        frontPanelFixedBeacon, 4, 0, autocalibScale);
-                };
+            setupHDKParamsAndSensors = [config](
+                VideoBasedHMDTracker &newTracker) {
+                osvr::vbtracker::setupSensorsIncludeRearPanel(
+                    newTracker.vbtracker(), config);
+            };
         } else {
             // OK, so if we don't have to include the rear panel as part of the
             // single sensor, that's easy.
-            setupHDKParamsAndSensors =
-                [frontPanelFixedBeacon, config, backPanelFixedBeacon,
-                 BEACON_AUTOCALIB_ERROR_SCALE_IF_CALIBRATED](
-                    VideoBasedHMDTracker &newTracker) {
-                    auto camParams = osvr::vbtracker::getHDKCameraParameters();
-
-                    auto calibLocations =
-                        tryLoadingArrayOfPointsFromFile(config.calibrationFile);
-                    if (calibLocations.size() ==
-                        osvr::vbtracker::OsvrHdkLedLocations_SENSOR0.size()) {
-                        std::cout << "Video-based tracker: Successfully loaded "
-                                     "beacon calibration file "
-                                  << config.calibrationFile << std::endl;
-
-                        newTracker.vbtracker().addSensor(
-                            osvr::vbtracker::createHDKLedIdentifier(0),
-                            camParams, calibLocations,
-                            osvr::vbtracker::OsvrHdkLedDirections_SENSOR0,
-                            osvr::vbtracker::OsvrHdkLedVariances_SENSOR0,
-                            frontPanelFixedBeacon, 6, 0,
-                            BEACON_AUTOCALIB_ERROR_SCALE_IF_CALIBRATED);
-                    } else {
-                        if (!config.calibrationFile.empty()) {
-                            std::cout
-                                << "Video-based tracker: NOTE: Beacon "
-                                   "calibration filename "
-                                << config.calibrationFile
-                                << " was specified, but not found or could not "
-                                   "be loaded."
-                                << std::endl;
-                        }
-                        newTracker.vbtracker().addSensor(
-                            osvr::vbtracker::createHDKLedIdentifier(0),
-                            camParams,
-                            osvr::vbtracker::OsvrHdkLedLocations_SENSOR0,
-                            osvr::vbtracker::OsvrHdkLedDirections_SENSOR0,
-                            osvr::vbtracker::OsvrHdkLedVariances_SENSOR0,
-                            frontPanelFixedBeacon, 6, 0);
-                    }
-                    newTracker.vbtracker().addSensor(
-                        osvr::vbtracker::createHDKLedIdentifier(1), camParams,
-                        osvr::vbtracker::OsvrHdkLedLocations_SENSOR1,
-                        osvr::vbtracker::OsvrHdkLedDirections_SENSOR1,
-                        backPanelFixedBeacon, 4, 0);
-                };
+            setupHDKParamsAndSensors = [config](
+                VideoBasedHMDTracker &newTracker) {
+                osvr::vbtracker::setupSensorsWithoutRearPanel(
+                    newTracker.vbtracker(), config);
+            };
         }
 
         // OK, now that we have our parameters, create the device.
