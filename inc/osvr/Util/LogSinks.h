@@ -46,7 +46,7 @@ class ostream_sink;
 
 namespace details {
 
-class null_mutex;
+struct null_mutex;
 
 } // end namespace details
 } // end namespace spdlog
