@@ -120,7 +120,7 @@ public:
     template <typename T>
     OSVR_UTIL_EXPORT detail::LineLogger log(LogLevel level, T&& msg);
 
-    OSVR_UTIL_EXPORT // logger.log(log_level) << ".." call  style
+    // logger.log(log_level) << ".." call  style
     OSVR_UTIL_EXPORT detail::LineLogger log(LogLevel level);
 
     // Create log message with the given level, no matter what is the actual logger's level
