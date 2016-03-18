@@ -71,7 +71,12 @@ LoggerPtr make_logger(const std::string& logger_name)
         auto daily_file_sink = std::make_shared<spdlog::sinks::daily_file_sink_mt>(base_name.string().c_str(), "log", 0, 0, false);
 
         std::vector<spdlog::sink_ptr> sinks;
+#if defined(OSVR_LINUX) || defined(OSVR_MACOSX)
         sinks.push_back(color_sink);
+#else
+        // No color for Windows yet (and not tested on other platforms)
+        sinks.push_back(console_out);
+#endif
         sinks.push_back(daily_file_sink);
 
         spd_logger = spdlog::details::registry::instance().create(logger_name, begin(sinks), end(sinks));
