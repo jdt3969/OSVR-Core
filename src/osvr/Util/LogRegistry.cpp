@@ -84,7 +84,7 @@ LogRegistry::LogRegistry() : sinks_()
     // Instantiate console and file sinks
 
     // Console sink
-    auto console_out = spdlog::sinks::stderr_sink_st::instance();
+    auto console_out = spdlog::sinks::stderr_sink_mt::instance();
     auto color_sink = std::make_shared<spdlog::sinks::ansicolor_sink>(console_out); // taste the rainbow!
 #if defined(OSVR_LINUX) || defined(OSVR_MACOSX)
         sinks_.push_back(color_sink);
