@@ -57,32 +57,32 @@ namespace detail {
 /**
  * @brief A wrapper class for spdlog::details::line_logger.
  */
-class OSVR_UTIL_EXPORT LineLogger {
+class LineLogger {
 public:
-    LineLogger(spdlog::details::line_logger&& line_logger);
+    OSVR_UTIL_EXPORT LineLogger(spdlog::details::line_logger&& line_logger);
 
     /**
      * @brief Move-only.
      */
     //@{
-    LineLogger(const LineLogger& other) = delete;
-    LineLogger& operator=(const LineLogger&) = delete;
-    LineLogger& operator=(LineLogger&&) = delete;
-    LineLogger(LineLogger&& other);
+    OSVR_UTIL_EXPORT LineLogger(const LineLogger& other) = delete;
+    OSVR_UTIL_EXPORT LineLogger& operator=(const LineLogger&) = delete;
+    OSVR_UTIL_EXPORT LineLogger& operator=(LineLogger&&) = delete;
+    OSVR_UTIL_EXPORT LineLogger(LineLogger&& other);
     //@}
 
     /**
      * @brief Log the message using the callback logger.
      */
-    ~LineLogger();
+    OSVR_UTIL_EXPORT ~LineLogger();
 
     /**
      * @brief Support for format string with variadic args.
      */
-    void write(const char* what);
+    OSVR_UTIL_EXPORT void write(const char* what);
 
     template <typename... Args>
-    void write(const char* fmt, Args&&... args);
+    OSVR_UTIL_EXPORT void write(const char* fmt, Args&&... args);
 
     /**
      * @brief Support for operator<<
@@ -90,25 +90,25 @@ public:
      * \name Stream operators
      */
     //@{
-    LineLogger& operator<<(const char* what);
-    LineLogger& operator<<(const std::string& what);
-    LineLogger& operator<<(int what);
-    LineLogger& operator<<(unsigned int what);
-    LineLogger& operator<<(long what);
-    LineLogger& operator<<(unsigned long what);
-    LineLogger& operator<<(long long what);
-    LineLogger& operator<<(unsigned long long what);
-    LineLogger& operator<<(double what);
-    LineLogger& operator<<(long double what);
-    LineLogger& operator<<(float what);
-    LineLogger& operator<<(char what);
+    OSVR_UTIL_EXPORT LineLogger& operator<<(const char* what);
+    OSVR_UTIL_EXPORT LineLogger& operator<<(const std::string& what);
+    OSVR_UTIL_EXPORT LineLogger& operator<<(int what);
+    OSVR_UTIL_EXPORT LineLogger& operator<<(unsigned int what);
+    OSVR_UTIL_EXPORT LineLogger& operator<<(long what);
+    OSVR_UTIL_EXPORT LineLogger& operator<<(unsigned long what);
+    OSVR_UTIL_EXPORT LineLogger& operator<<(long long what);
+    OSVR_UTIL_EXPORT LineLogger& operator<<(unsigned long long what);
+    OSVR_UTIL_EXPORT LineLogger& operator<<(double what);
+    OSVR_UTIL_EXPORT LineLogger& operator<<(long double what);
+    OSVR_UTIL_EXPORT LineLogger& operator<<(float what);
+    OSVR_UTIL_EXPORT LineLogger& operator<<(char what);
 
     template<typename T>
-    LineLogger& operator<<(T&& what);
+    OSVR_UTIL_EXPORT LineLogger& operator<<(T&& what);
     //@}
 
-    void disable();
-    bool is_enabled() const;
+    OSVR_UTIL_EXPORT void disable();
+    OSVR_UTIL_EXPORT bool is_enabled() const;
 
 private:
     std::unique_ptr<spdlog::details::line_logger> lineLogger_;
