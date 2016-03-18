@@ -100,10 +100,10 @@ namespace pluginhost {
 
         PluginRegMap m_regMap;
         util::AnyMap m_data;
-        util::log::LoggerPtr m_logger;
         struct Impl;
         /// Private impl.
         unique_ptr<Impl> m_impl;
+        util::log::LoggerPtr m_logger;
     };
 } // namespace pluginhost
 } // namespace osvr
