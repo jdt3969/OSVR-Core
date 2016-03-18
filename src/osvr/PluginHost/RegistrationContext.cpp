@@ -150,14 +150,14 @@ namespace pluginhost {
 
             try {
                 loadPlugin(pluginBaseName);
-                m_logger->debug()
+                m_logger->info()
                     << "Successfully loaded plugin: " << pluginBaseName;
             } catch (const std::exception &e) {
-                m_logger->debug() << "Failed to load plugin " << pluginBaseName
-                               << ": " << e.what();
+                m_logger->warn() << "Failed to load plugin " << pluginBaseName
+                                 << ": " << e.what();
             } catch (...) {
-                m_logger->debug() << "Failed to load plugin " << pluginBaseName
-                               << ": Unknown error.";
+                m_logger->warn() << "Failed to load plugin " << pluginBaseName
+                                 << ": Unknown error.";
             }
         }
     }
