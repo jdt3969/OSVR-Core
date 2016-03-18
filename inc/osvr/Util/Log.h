@@ -30,6 +30,7 @@
 #include <osvr/Util/LogLevel.h>
 #include <osvr/Util/LineLogger.h>
 #include <osvr/Util/Logger.h>
+#include <osvr/Util/Export.h>
 
 // Library/third-party includes
 // - none
@@ -43,9 +44,9 @@ namespace osvr {
 namespace util {
 namespace log {
 
-LoggerPtr make_logger(const std::string& logger_name);
+OSVR_UTIL_EXPORT LoggerPtr make_logger(const std::string& logger_name);
 
-std::string getLoggingDirectory(bool make_dir = false);
+OSVR_UTIL_EXPORT std::string getLoggingDirectory(bool make_dir = false);
 
 } // end namespace log
 } // end namespace util
