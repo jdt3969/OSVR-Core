@@ -40,26 +40,6 @@
 
 namespace osvr {
 namespace server {
-#if 0
-    namespace detail {
-        class StreamPrefixer {
-          public:
-            StreamPrefixer(const char *prefix, std::ostream &os)
-                : m_prefix(prefix), m_os(&os) {}
-            template <typename T> std::ostream &operator<<(T val) {
-                return (*m_os) << m_prefix << val;
-            }
-
-          private:
-            const char *m_prefix;
-            std::ostream *m_os;
-        };
-
-        static detail::StreamPrefixer out("[OSVR Server] ", std::cout);
-        static detail::StreamPrefixer err("[OSVR Server] ", std::cerr);
-    } // namespace detail
-#endif
-
     inline const char *getDefaultConfigFilename() {
         return "osvr_server_config.json";
     }
@@ -167,3 +147,4 @@ namespace server {
 } // namespace osvr
 
 #endif // INCLUDED_ConfigureServerFromFile_h_GUID_9DA4C152_2AE4_4394_E19E_C0B7EA41804F
+

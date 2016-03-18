@@ -39,39 +39,42 @@
 
 // Forward declarations
 namespace spdlog {
-namespace sinks {
-class sink;
-} // namespace sinks
-using sink_ptr = std::shared_ptr<spdlog::sinks::sink>;
+
+    namespace sinks {
+        class sink;
+    } // namespace sinks
+
+    using sink_ptr = std::shared_ptr<spdlog::sinks::sink>;
+
 } // namespace spdlog
 
 namespace osvr {
 namespace util {
 namespace log {
 
-class Logger;
-using LoggerPtr = std::shared_ptr<Logger>;
+    class Logger;
+    using LoggerPtr = std::shared_ptr<Logger>;
 
-class LogRegistry {
-public:
-    LogRegistry(LogRegistry const&) = delete;             // copy construct
-    LogRegistry(LogRegistry&&) = delete;                  // move construct
-    LogRegistry& operator=(LogRegistry const&) = delete;  // copy assign
-    LogRegistry& operator=(LogRegistry &&) = delete;      // move assign
+    class LogRegistry {
+      public:
+        LogRegistry(LogRegistry const &) = delete;            // copy construct
+        LogRegistry(LogRegistry &&) = delete;                 // move construct
+        LogRegistry &operator=(LogRegistry const &) = delete; // copy assign
+        LogRegistry &operator=(LogRegistry &&) = delete;      // move assign
 
-    static LogRegistry& instance();
+        static LogRegistry &instance();
 
-    LoggerPtr getOrCreateLogger(const std::string& logger_name);
+        LoggerPtr getOrCreateLogger(const std::string &logger_name);
 
-    void setPattern(const std::string& pattern);
-    void setLevel(LogLevel severity);
+        void setPattern(const std::string &pattern);
+        void setLevel(LogLevel severity);
 
-protected:
-    LogRegistry();
-    ~LogRegistry();
+      protected:
+        LogRegistry();
+        ~LogRegistry();
 
-    std::vector<spdlog::sink_ptr> sinks_;
-};
+        std::vector<spdlog::sink_ptr> sinks_;
+    };
 
 } // namespace log
 } // namespace util

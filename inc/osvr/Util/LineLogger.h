@@ -54,65 +54,64 @@ class Logger;
 
 namespace detail {
 
-/**
- * @brief A wrapper class for spdlog::details::line_logger.
- */
-class LineLogger {
-public:
-    OSVR_UTIL_EXPORT LineLogger(spdlog::details::line_logger&& line_logger);
-
     /**
-     * @brief Move-only.
+     * @brief A wrapper class for spdlog::details::line_logger.
      */
-    //@{
-    OSVR_UTIL_EXPORT LineLogger(const LineLogger& other) = delete;
-    OSVR_UTIL_EXPORT LineLogger& operator=(const LineLogger&) = delete;
-    OSVR_UTIL_EXPORT LineLogger& operator=(LineLogger&&) = delete;
-    OSVR_UTIL_EXPORT LineLogger(LineLogger&& other);
-    //@}
+    class LineLogger {
+      public:
+        OSVR_UTIL_EXPORT LineLogger(spdlog::details::line_logger &&line_logger);
 
-    /**
-     * @brief Log the message using the callback logger.
-     */
-    OSVR_UTIL_EXPORT ~LineLogger();
+        /**
+         * @brief Move-only.
+         */
+        //@{
+        OSVR_UTIL_EXPORT LineLogger(const LineLogger &other) = delete;
+        OSVR_UTIL_EXPORT LineLogger &operator=(const LineLogger &) = delete;
+        OSVR_UTIL_EXPORT LineLogger &operator=(LineLogger &&) = delete;
+        OSVR_UTIL_EXPORT LineLogger(LineLogger &&other);
+        //@}
 
-    /**
-     * @brief Support for format string with variadic args.
-     */
-    OSVR_UTIL_EXPORT void write(const char* what);
+        /**
+         * @brief Log the message using the callback logger.
+         */
+        OSVR_UTIL_EXPORT ~LineLogger();
 
-    template <typename... Args>
-    OSVR_UTIL_EXPORT void write(const char* fmt, Args&&... args);
+        /**
+         * @brief Support for format string with variadic args.
+         */
+        OSVR_UTIL_EXPORT void write(const char *what);
 
-    /**
-     * @brief Support for operator<<
-     *
-     * \name Stream operators
-     */
-    //@{
-    OSVR_UTIL_EXPORT LineLogger& operator<<(const char* what);
-    OSVR_UTIL_EXPORT LineLogger& operator<<(const std::string& what);
-    OSVR_UTIL_EXPORT LineLogger& operator<<(int what);
-    OSVR_UTIL_EXPORT LineLogger& operator<<(unsigned int what);
-    OSVR_UTIL_EXPORT LineLogger& operator<<(long what);
-    OSVR_UTIL_EXPORT LineLogger& operator<<(unsigned long what);
-    OSVR_UTIL_EXPORT LineLogger& operator<<(long long what);
-    OSVR_UTIL_EXPORT LineLogger& operator<<(unsigned long long what);
-    OSVR_UTIL_EXPORT LineLogger& operator<<(double what);
-    OSVR_UTIL_EXPORT LineLogger& operator<<(long double what);
-    OSVR_UTIL_EXPORT LineLogger& operator<<(float what);
-    OSVR_UTIL_EXPORT LineLogger& operator<<(char what);
+        template <typename... Args>
+        OSVR_UTIL_EXPORT void write(const char *fmt, Args &&... args);
 
-    template<typename T>
-    OSVR_UTIL_EXPORT LineLogger& operator<<(T&& what);
-    //@}
+        /**
+         * @brief Support for operator<<
+         *
+         * \name Stream operators
+         */
+        //@{
+        OSVR_UTIL_EXPORT LineLogger &operator<<(const char *what);
+        OSVR_UTIL_EXPORT LineLogger &operator<<(const std::string &what);
+        OSVR_UTIL_EXPORT LineLogger &operator<<(int what);
+        OSVR_UTIL_EXPORT LineLogger &operator<<(unsigned int what);
+        OSVR_UTIL_EXPORT LineLogger &operator<<(long what);
+        OSVR_UTIL_EXPORT LineLogger &operator<<(unsigned long what);
+        OSVR_UTIL_EXPORT LineLogger &operator<<(long long what);
+        OSVR_UTIL_EXPORT LineLogger &operator<<(unsigned long long what);
+        OSVR_UTIL_EXPORT LineLogger &operator<<(double what);
+        OSVR_UTIL_EXPORT LineLogger &operator<<(long double what);
+        OSVR_UTIL_EXPORT LineLogger &operator<<(float what);
+        OSVR_UTIL_EXPORT LineLogger &operator<<(char what);
 
-    OSVR_UTIL_EXPORT void disable();
-    OSVR_UTIL_EXPORT bool is_enabled() const;
+        template <typename T> OSVR_UTIL_EXPORT LineLogger &operator<<(T &&what);
+        //@}
 
-private:
-    std::unique_ptr<spdlog::details::line_logger> lineLogger_;
-};
+        OSVR_UTIL_EXPORT void disable();
+        OSVR_UTIL_EXPORT bool is_enabled() const;
+
+      private:
+        std::unique_ptr<spdlog::details::line_logger> lineLogger_;
+    };
 
 } // end namespace detail
 } // end namespace log

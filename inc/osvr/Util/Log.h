@@ -44,22 +44,26 @@ namespace osvr {
 namespace util {
 namespace log {
 
-OSVR_UTIL_EXPORT LoggerPtr make_logger(const std::string& logger_name);
+    OSVR_UTIL_EXPORT LoggerPtr make_logger(const std::string &logger_name);
 
-OSVR_UTIL_EXPORT std::string getLoggingDirectory(bool make_dir = false);
+    OSVR_UTIL_EXPORT std::string getLoggingDirectory(bool make_dir = false);
 
 } // end namespace log
 } // end namespace util
 } // end namespace osvr
 
 #ifdef BUILD_DEV_VERBOSE
-#define OSVR_TRACE(...) ::osvr::util::log::make_logger("OSVR")->trace() << __FILE__ << ":" << __LINE__ << ": " << __VA_ARGS__;
+#define OSVR_TRACE(...)                                                        \
+    ::osvr::util::log::make_logger("OSVR")->trace()                            \
+        << __FILE__ << ":" << __LINE__ << ": " << __VA_ARGS__;
 #else
 #define OSVR_TRACE(...)
 #endif
 
 #ifdef BUILD_DEV_VERBOSE
-#define OSVR_DEBUG(...) ::osvr::util::log::make_logger("OSVR")->debug() << __FILE__ << ":" << __LINE__ << ": " << __VA_ARGS__;
+#define OSVR_DEBUG(...)                                                        \
+    ::osvr::util::log::make_logger("OSVR")->debug()                            \
+        << __FILE__ << ":" << __LINE__ << ": " << __VA_ARGS__;
 #else
 #define OSVR_DEBUG(...)
 #endif

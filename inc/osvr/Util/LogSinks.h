@@ -39,14 +39,13 @@
 namespace spdlog {
 namespace sinks {
 
-template <typename Mutex>
-class ostream_sink;
+    template <typename Mutex> class ostream_sink;
 
 } // end namespace sinks
 
 namespace details {
 
-struct null_mutex;
+    struct null_mutex;
 
 } // end namespace details
 } // end namespace spdlog
@@ -55,40 +54,40 @@ namespace osvr {
 namespace util {
 namespace log {
 
-/**
- * @brief A sink which sends its output to std::cout. This sink is a drop-in
- * replacement for spdlog::stdout_sink and differs only in that this sink isn't
- * a singleton.
- */
-template <typename Mutex>
-class stdout_sink : public ::spdlog::sinks::ostream_sink<Mutex> {
-public:
-    stdout_sink() : ::spdlog::sinks::ostream_sink<Mutex>(std::cout, true)
-    {
-        // do nothing
-    }
-};
+    /**
+     * @brief A sink which sends its output to std::cout. This sink is a drop-in
+     * replacement for spdlog::stdout_sink and differs only in that this sink isn't
+     * a singleton.
+     */
+    template <typename Mutex>
+    class stdout_sink : public ::spdlog::sinks::ostream_sink<Mutex> {
+    public:
+        stdout_sink() : ::spdlog::sinks::ostream_sink<Mutex>(std::cout, true)
+        {
+            // do nothing
+        }
+    };
 
-typedef stdout_sink<::spdlog::details::null_mutex> stdout_sink_st;
-typedef stdout_sink<std::mutex> stdout_sink_mt;
+    typedef stdout_sink<::spdlog::details::null_mutex> stdout_sink_st;
+    typedef stdout_sink<std::mutex> stdout_sink_mt;
 
 
-/**
- * @brief A sink which sends its output to std::cerr. This sink is a drop-in
- * replacement for spdlog::stderr_sink and differs only in that this sink isn't
- * a singleton.
- */
-template <typename Mutex>
-class stderr_sink : public ::spdlog::sinks::ostream_sink<Mutex> {
-public:
-    stderr_sink() : ::spdlog::sinks::ostream_sink<Mutex>(std::cerr, true)
-    {
-        // do nothing
-    }
-};
+    /**
+     * @brief A sink which sends its output to std::cerr. This sink is a drop-in
+     * replacement for spdlog::stderr_sink and differs only in that this sink isn't
+     * a singleton.
+     */
+    template <typename Mutex>
+    class stderr_sink : public ::spdlog::sinks::ostream_sink<Mutex> {
+    public:
+        stderr_sink() : ::spdlog::sinks::ostream_sink<Mutex>(std::cerr, true)
+        {
+            // do nothing
+        }
+    };
 
-typedef stderr_sink<std::mutex> stderr_sink_mt;
-typedef stderr_sink<::spdlog::details::null_mutex> stderr_sink_st;
+    typedef stderr_sink<std::mutex> stderr_sink_mt;
+    typedef stderr_sink<::spdlog::details::null_mutex> stderr_sink_st;
 
 } // end namespace log
 } // end namespace util
