@@ -68,7 +68,7 @@ LoggerPtr make_logger(const std::string& logger_name)
     auto base_name = fs::path(getLoggingDirectory(true));
     if (!base_name.empty()) {
         base_name /= "osvr";
-        auto daily_file_sink = std::make_shared<spdlog::sinks::daily_file_sink_mt>(base_name.c_str(), "log", 0, 0, false);
+        auto daily_file_sink = std::make_shared<spdlog::sinks::daily_file_sink_mt>(base_name.string().c_str(), "log", 0, 0, false);
 
         std::vector<spdlog::sink_ptr> sinks;
         sinks.push_back(color_sink);
@@ -147,7 +147,7 @@ std::string getLoggingDirectory(bool make_dir)
 #endif
 
     if (fs::is_directory(log_dir))
-        return log_dir.native();
+        return log_dir.string();
 
     if (make_dir) {
         auto success = fs::create_directories(log_dir);
@@ -156,7 +156,7 @@ std::string getLoggingDirectory(bool make_dir)
         }
     }
 
-    return log_dir.native();
+    return log_dir.string();
 }
 
 } // end namespace log
