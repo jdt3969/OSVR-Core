@@ -28,6 +28,7 @@
 
 // Internal Includes
 #include <osvr/Util/LogLevel.h>
+#include <osvr/Util/Export.h>
 
 // Library/third-party includes
 // - none
@@ -56,7 +57,7 @@ namespace detail {
 /**
  * @brief A wrapper class for spdlog::details::line_logger.
  */
-class LineLogger {
+class OSVR_UTIL_EXPORT LineLogger {
 public:
     LineLogger(spdlog::details::line_logger&& line_logger);
 

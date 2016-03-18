@@ -29,6 +29,7 @@
 // Internal Includes
 #include <osvr/Util/LogLevel.h>
 #include <osvr/Util/LineLogger.h>
+#include <osvr/Util/Export.h>
 
 // Library/third-party includes
 // - none
@@ -51,7 +52,7 @@ namespace log {
 /**
  * @brief A wrapper around the spdlog::logger class.
  */
-class Logger {
+class OSVR_UTIL_EXPORT Logger {
 public:
     Logger(const std::string& logger_name);
     Logger(spdlog::logger* logger);
