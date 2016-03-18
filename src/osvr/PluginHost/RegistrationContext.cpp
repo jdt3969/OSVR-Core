@@ -58,9 +58,9 @@ namespace pluginhost {
 
         const std::vector<std::string> pluginPaths;
     };
-    RegistrationContext::RegistrationContext() : m_impl(new Impl), m_logger(util::log::make_logger("PluginHost")) {
-        m_logger->setLogLevel(util::log::LogLevel::trace);
-    }
+
+    RegistrationContext::RegistrationContext()
+        : m_impl(new Impl), m_logger(util::log::make_logger("PluginHost")) {}
 
     RegistrationContext::~RegistrationContext() {
         // Reset the plugins in reverse order.
