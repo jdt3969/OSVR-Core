@@ -31,7 +31,6 @@
 
 // Library/third-party includes
 #include <spdlog/spdlog.h>
-#include <spdlog/sinks/ansicolor_sink.h>
 #include <boost/filesystem.hpp>
 
 // Standard includes
@@ -39,6 +38,10 @@
 #include <string>           // for std::string
 
 #cmakedefine OSVR_UTIL_LOG_SINGLETON
+
+#ifdef OSVR_UTIL_LOG_SINGLETON
+#include <osvr/Util/LogRegistry.h>
+#endif
 
 namespace osvr {
 namespace util {
@@ -49,49 +52,7 @@ namespace log {
 #ifdef OSVR_UTIL_LOG_SINGLETON
 LoggerPtr make_logger(const std::string& logger_name)
 {
-    namespace fs = boost::filesystem;
-    // If logger already exists, return a copy of it
-    auto spd_logger = spdlog::get(logger_name);
-    if (spd_logger)
-        return std::make_shared<Logger>(spd_logger);
-
-    // Bummer, it didn't exist. We'll create one from scratch.
-
-    // Console sink
-    auto console_out = spdlog::sinks::stderr_sink_st::instance();
-    auto stdout_sink = std::make_shared<stdout_sink_mt>();
-    auto color_sink = std::make_shared<spdlog::sinks::ansicolor_sink>(stdout_sink); // taste the rainbow!
-
-    // File sink - rotates daily
-    size_t q_size = 1048576; // queue size must be power of 2
-    spdlog::set_async_mode(q_size);
-    auto base_name = fs::path(getLoggingDirectory(true));
-    if (!base_name.empty()) {
-        base_name /= "osvr";
-        auto daily_file_sink = std::make_shared<spdlog::sinks::daily_file_sink_mt>(base_name.string().c_str(), "log", 0, 0, false);
-
-        std::vector<spdlog::sink_ptr> sinks;
-#if defined(OSVR_LINUX) || defined(OSVR_MACOSX)
-        sinks.push_back(color_sink);
-#else
-        // No color for Windows yet (and not tested on other platforms)
-        sinks.push_back(console_out);
-#endif
-        sinks.push_back(daily_file_sink);
-
-        spd_logger = spdlog::details::registry::instance().create(logger_name, begin(sinks), end(sinks));
-    } else {
-        spd_logger = spdlog::details::registry::instance().create(logger_name, color_sink);
-    }
-
-    spd_logger->set_pattern("%b %d %T.%e %l [%n]: %v");
-    spd_logger->set_level(spdlog::level::trace);
-
-    if (base_name.empty()) {
-        spd_logger->warn("Failed to locate or create logging directory. Messages will be logged to the console only.");
-    }
-
-    return std::make_shared<Logger>(spd_logger);
+    return LogRegistry::instance().getOrCreateLogger(logger_name);
 }
 #else
 /*

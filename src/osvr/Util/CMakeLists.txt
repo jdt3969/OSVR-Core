@@ -88,6 +88,7 @@ set(API
     "${HEADER_LOCATION}/Log.h"
     "${HEADER_LOCATION}/LogLevel.h"
     "${HEADER_LOCATION}/LogLevelC.h"
+    "${HEADER_LOCATION}/LogRegistry.h"
     "${HEADER_LOCATION}/LogSinks.h"
     "${HEADER_LOCATION}/MatrixConventionsC.h"
     "${HEADER_LOCATION}/MatrixConventions.h"
@@ -150,6 +151,7 @@ set(SOURCE
     LineLogger.cpp
     Log.cpp.in
     Logger.cpp
+    LogRegistry.cpp
     MatrixConventionsC.cpp
     MessageKeys.cpp
     PlatformConfig.h.in
