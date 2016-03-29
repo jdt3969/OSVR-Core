@@ -1,4 +1,7 @@
 add_subdirectory(multiserver)
+
+add_subdirectory(multicamera)
+
 if(BUILD_OPENCV_CAMERA_PLUGIN)
 	add_subdirectory(opencv)
 endif()

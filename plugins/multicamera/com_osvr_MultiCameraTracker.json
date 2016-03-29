@@ -1,0 +1,55 @@
+{
+  "deviceVendor": "OSVR",
+  "deviceName": "Multi Camera Tracking",
+  "author": "Josh Taylor <josh@oasisvr.io>",
+  "version": 1,
+  "interfaces": {
+  	"tracker": {
+  		"count": 2,
+  		"position": true,
+  		"orientation": true
+  	}
+  },
+  "semantic": {
+        "hmd": {
+            "front": {
+                "$target": {
+                    "rotate": {
+                        "axis": "x",
+                        "degrees": 180
+                    },
+                    "child": {
+                        "changeBasis": {
+                            "x": "-x",
+                            "y": "-y",
+                            "z": "z"
+                        },
+                        "child": "tracker/0"
+                    }
+                }
+            },
+            "back": {
+                "$target": {
+                    "rotate": {
+                        "axis": "y",
+                        "degrees": 180
+                    },
+                    "child": {
+                        "rotate": {
+                            "axis": "x",
+                            "degrees": 180
+                        },
+                        "child": {
+                            "changeBasis": {
+                                "x": "-x",
+                                "y": "-y",
+                                "z": "z"
+                            },
+                            "child": "tracker/1"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
